@@ -12,7 +12,12 @@ type PlanFormProps = {
 };
 
 function getToday() {
-  return new Date().toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 export function PlanForm({ mountain, entryTrailhead, exitTrailhead }: PlanFormProps) {
@@ -73,6 +78,7 @@ export function PlanForm({ mountain, entryTrailhead, exitTrailhead }: PlanFormPr
           <input
             type="date"
             required
+            min={getToday()}
             value={hikeDate}
             onChange={(event) => setHikeDate(event.target.value)}
             className="mt-2 w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-stone-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"

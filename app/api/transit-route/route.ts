@@ -14,6 +14,10 @@ function toRfc3339(date: string, time: string) {
   return new Date(`${date}T${time}:00+09:00`).toISOString();
 }
 
+function isPastRequestedTime(date: string, time: string) {
+  return new Date(`${date}T${time}:00+09:00`).getTime() < Date.now();
+}
+
 function normalizeAddress(value: string, fallbackPrefecture = "東京都") {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -166,6 +170,16 @@ export async function POST(request: Request) {
       source: "google-routes-api",
       steps: [],
       error: "Google Maps APIキーが未設定です。",
+    } satisfies TransitRouteResult);
+  }
+
+  if (isPastRequestedTime(body.date, body.time)) {
+    return NextResponse.json({
+      configured: true,
+      source: "google-routes-api",
+      steps: [],
+      error: "指定日時が過去のため、Google Routes APIで公共交通ルートを取得できません。山行日を今日以降に変更してください。",
+      query: createQuery(body),
     } satisfies TransitRouteResult);
   }
 
