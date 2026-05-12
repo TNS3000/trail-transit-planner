@@ -67,7 +67,7 @@ export function PlanForm({ mountain, entryTrailhead, exitTrailhead }: PlanFormPr
         </h2>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 grid gap-4">
         <label className="block">
           <span className="text-sm font-semibold text-stone-700">山行日</span>
           <input

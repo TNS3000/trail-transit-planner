@@ -37,3 +37,13 @@ Open [http://localhost:3000](http://localhost:3000).
 ```bash
 npm run build
 ```
+
+## 山・登山口データの追加
+
+外部DBを使わないMVPのため、データはコード内の固定データで管理しています。
+
+1. 山を追加する場合は `data/mountains.ts` に追加
+2. 入山口・下山口を追加する場合は `data/trailheads.ts` に追加
+3. 山と入山口・下山口の対応は `data/mountainTrailheads.ts` に追加
+4. 下山時の終バス時刻は `data/busSchedules.ts` に追加
+5. 公共交通ルートの基本形は `data/sampleRoutes.ts` と `lib/getSampleRoute.ts` で調整

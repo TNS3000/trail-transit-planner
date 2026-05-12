@@ -5,14 +5,15 @@ function toMinutes(time: string) {
   return hours * 60 + minutes;
 }
 
-export function calculateLastBusRisk(finishTime: string, lastBusTime: string): LastBusRisk {
-  const minutesUntilLastBus = toMinutes(lastBusTime) - toMinutes(finishTime);
+export function calculateLastBusRisk(checkedTime: string, lastBusTime: string): LastBusRisk {
+  const minutesUntilLastBus = toMinutes(lastBusTime) - toMinutes(checkedTime);
 
   if (minutesUntilLastBus <= 0) {
     return {
       level: "impossible",
       label: "帰宅困難リスクあり",
       minutesUntilLastBus,
+      checkedTime,
       message: "下山予定時刻が終バス以降です。計画の前倒し、別ルート、宿泊を検討してください。",
     };
   }
@@ -22,6 +23,7 @@ export function calculateLastBusRisk(finishTime: string, lastBusTime: string): L
       level: "high",
       label: "高",
       minutesUntilLastBus,
+      checkedTime,
       message: "終バスまでの余裕がかなり少ない計画です。遅延時の代替案を用意してください。",
     };
   }
@@ -31,6 +33,7 @@ export function calculateLastBusRisk(finishTime: string, lastBusTime: string): L
       level: "medium",
       label: "中",
       minutesUntilLastBus,
+      checkedTime,
       message: "終バスまで一定の余裕がありますが、休憩・道迷い・混雑を考慮してください。",
     };
   }
@@ -39,6 +42,7 @@ export function calculateLastBusRisk(finishTime: string, lastBusTime: string): L
     level: "low",
     label: "低",
     minutesUntilLastBus,
+    checkedTime,
     message: "終バスまで比較的余裕があります。とはいえ公式時刻表の確認は必須です。",
   };
 }

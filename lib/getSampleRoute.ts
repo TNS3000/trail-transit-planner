@@ -31,7 +31,56 @@ function replaceTokens(text: string, values: Record<string, string>) {
   return Object.entries(values).reduce((result, [key, value]) => result.replaceAll(`{${key}}`, value), text);
 }
 
-export function getSampleRoute(homeStation: string, entryTrailhead: Trailhead, exitTrailhead: Trailhead) {
+function toMinutes(time: string) {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function toTime(totalMinutes: number) {
+  const minutesInDay = 24 * 60;
+  const normalized = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
+  const hours = Math.floor(normalized / 60);
+  const minutes = normalized % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+function addTimesForward(steps: RouteStep[], firstDepartureTime: string) {
+  let cursor = toMinutes(firstDepartureTime);
+
+  return steps.map((step) => {
+    const departureTime = toTime(cursor);
+    cursor += step.durationMinutes;
+
+    return {
+      ...step,
+      departureTime,
+      arrivalTime: toTime(cursor),
+    };
+  });
+}
+
+function addTimesBackward(steps: RouteStep[], finalArrivalTime: string) {
+  let cursor = toMinutes(finalArrivalTime);
+
+  return [...steps].reverse().map((step) => {
+    const arrivalTime = toTime(cursor);
+    cursor -= step.durationMinutes;
+
+    return {
+      ...step,
+      departureTime: toTime(cursor),
+      arrivalTime,
+    };
+  }).reverse();
+}
+
+export function getSampleRoute(
+  homeStation: string,
+  entryTrailhead: Trailhead,
+  exitTrailhead: Trailhead,
+  startTime: string,
+  finishTime: string,
+) {
   const template = sampleRoutes[0];
   const values = {
     homeStation,
@@ -44,7 +93,7 @@ export function getSampleRoute(homeStation: string, entryTrailhead: Trailhead, e
   };
 
   return {
-    outbound: template.outbound.map((step) => fillStep(step, values)),
-    inbound: template.inbound.map((step) => fillStep(step, values)),
+    outbound: addTimesBackward(template.outbound.map((step) => fillStep(step, values)), startTime),
+    inbound: addTimesForward(template.inbound.map((step) => fillStep(step, values)), finishTime),
   };
 }

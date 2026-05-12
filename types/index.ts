@@ -33,6 +33,8 @@ export type RouteStep = {
   from: string;
   to: string;
   durationMinutes: number;
+  departureTime?: string;
+  arrivalTime?: string;
   note?: string;
 };
 
@@ -48,5 +50,6 @@ export type LastBusRisk = {
   level: LastBusRiskLevel;
   label: "低" | "中" | "高" | "帰宅困難リスクあり";
   minutesUntilLastBus: number;
+  checkedTime: string;
   message: string;
 };

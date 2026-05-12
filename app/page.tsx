@@ -11,7 +11,7 @@ export default function Home() {
             公共交通で行く登山アクセス計画
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-stone-700">
-            山名、入山口、下山口、予定時刻、自宅最寄り駅から、往復交通、終バスリスク、YAMAP転記用サマリーをまとめて確認できます。
+            登山の行き帰りの交通アクセス情報を計画して簡単にシェアできます。山の種類は随時追加予定。
           </p>
         </section>
 

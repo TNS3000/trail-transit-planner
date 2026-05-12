@@ -32,11 +32,17 @@ export function LastBusRisk({ busSchedule, risk }: LastBusRiskProps) {
           <dd>{busSchedule.stopName}</dd>
         </div>
         <div className="rounded-md bg-white/70 p-3">
+          <dt className="font-semibold">判定時刻</dt>
+          <dd>{risk.checkedTime}</dd>
+        </div>
+        <div className="rounded-md bg-white/70 p-3">
           <dt className="font-semibold">終バスまで</dt>
           <dd>{risk.minutesUntilLastBus > 0 ? `約${risk.minutesUntilLastBus}分` : "余裕なし"}</dd>
         </div>
       </dl>
-      <p className="mt-3 text-xs leading-5">{busSchedule.notes}</p>
+      <p className="mt-3 text-xs leading-5">
+        対象停留所は、下山後に最初に乗る公共交通の停留所です。{busSchedule.notes}
+      </p>
     </section>
   );
 }

@@ -28,7 +28,9 @@ export function RouteSummary({ title, steps }: RouteSummaryProps) {
                 {index + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-emerald-700">{modeLabel[step.mode]} / 約{step.durationMinutes}分</p>
+                <p className="text-sm font-semibold text-emerald-700">
+                  {modeLabel[step.mode]} / {step.departureTime}発 → {step.arrivalTime}着 / 約{step.durationMinutes}分
+                </p>
                 <p className="mt-1 text-base font-semibold text-stone-950">
                   {step.from} → {step.to}
                 </p>

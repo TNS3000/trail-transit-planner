@@ -10,7 +10,6 @@ import { mountains } from "@/data/mountains";
 import { trailheads } from "@/data/trailheads";
 import { calculateLastBusRisk } from "@/lib/calculateLastBusRisk";
 import { generateGoogleMapsUrl } from "@/lib/generateGoogleMapsUrl";
-import { generateLineShareUrl } from "@/lib/generateLineShareUrl";
 import { getSampleRoute } from "@/lib/getSampleRoute";
 
 type ResultPageProps = {
@@ -55,11 +54,13 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
   }
 
   const busSchedule = busSchedules.find((schedule) => schedule.trailheadId === exitTrailhead.id) ?? busSchedules[0];
-  const risk = calculateLastBusRisk(finishTime, busSchedule.lastBusTime);
-  const route = getSampleRoute(homeStation, entryTrailhead, exitTrailhead);
+  const route = getSampleRoute(homeStation, entryTrailhead, exitTrailhead, startTime, finishTime);
+  const firstInboundTransitStep = route.inbound.find((step) => step.mode !== "walk");
+  const checkedTime = firstInboundTransitStep?.departureTime ?? finishTime;
+  const risk = calculateLastBusRisk(checkedTime, busSchedule.lastBusTime);
   const outboundUrl = generateGoogleMapsUrl(homeStation, entryTrailhead.accessPoint);
   const inboundUrl = generateGoogleMapsUrl(exitTrailhead.accessPoint, homeStation);
-  const yamapSummary = [
+  const copySummary = [
     `山名：${mountain.name}`,
     `山行日：${hikeDate}`,
     `入山口：${entryTrailhead.name}（${entryTrailhead.accessPoint}）`,
@@ -67,18 +68,21 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
     `登山開始希望時刻：${startTime}`,
     `下山予定時刻：${finishTime}`,
     `自宅最寄り駅：${homeStation}`,
-    `終バス：${busSchedule.stopName} ${busSchedule.lastBusTime}`,
+    `終バス：${busSchedule.stopName} ${busSchedule.lastBusTime}（判定時刻：${checkedTime}）`,
     `終バスリスク：${risk.label}`,
     "",
     "往路：",
-    ...route.outbound.map((step, index) => `${index + 1}. ${step.from} → ${step.to}（${step.durationMinutes}分 / ${step.mode}）`),
+    ...route.outbound.map(
+      (step, index) => `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}）`,
+    ),
     "",
     "復路：",
-    ...route.inbound.map((step, index) => `${index + 1}. ${step.from} → ${step.to}（${step.durationMinutes}分 / ${step.mode}）`),
+    ...route.inbound.map(
+      (step, index) => `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}）`,
+    ),
     "",
     "注意：この計画は参考情報です。出発前に必ず公式情報を確認してください。",
   ].join("\n");
-  const lineShareUrl = generateLineShareUrl(yamapSummary);
 
   return (
     <main className="min-h-screen bg-stone-50">
@@ -114,11 +118,11 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
           <div className="space-y-5">
             <RouteSummary title="往路の公共交通" steps={route.outbound} />
             <RouteSummary title="復路の公共交通" steps={route.inbound} />
-            <YamapSummary summary={yamapSummary} />
+            <YamapSummary summary={copySummary} />
           </div>
           <aside className="space-y-5">
             <LastBusRisk busSchedule={busSchedule} risk={risk} />
-            <ShareButtons outboundUrl={outboundUrl} inboundUrl={inboundUrl} lineShareUrl={lineShareUrl} />
+            <ShareButtons outboundUrl={outboundUrl} inboundUrl={inboundUrl} />
             <NoticeBox />
             <SupportBox />
           </aside>
