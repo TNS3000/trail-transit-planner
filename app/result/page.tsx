@@ -65,8 +65,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
     officialLinks: [] as OfficialLink[],
     notes: ["この山の実用アクセスデータは未整備です。"],
   };
-  const firstInboundTransitStep = route.inbound.find((step) => step.mode !== "walk");
-  const checkedTime = firstInboundTransitStep?.departureTime ?? finishTime;
+  const checkedTime = finishTime;
   const risk = calculateLastBusRisk(checkedTime, busSchedule.lastBusTime);
   const outboundUrl = generateGoogleMapsUrl(homeStation, entryTrailhead.accessPoint);
   const inboundUrl = generateGoogleMapsUrl(exitTrailhead.accessPoint, homeStation);
@@ -79,28 +78,24 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
     `下山予定時刻：${finishTime}`,
     `自宅最寄り駅：${homeStation}`,
     `アクセスルート：${route.title}`,
-    `終バス：${busSchedule.stopName} ${busSchedule.lastBusTime}（判定時刻：${checkedTime}）`,
+    `終バス：${busSchedule.stopName} ${busSchedule.lastBusTime}（下山予定時刻：${checkedTime}で判定）`,
     `終バスリスク：${risk.label}`,
     "",
-    "往路：",
-    ...route.outbound.map(
-      (step, index) =>
-        `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}${
-          index > 0 && step.waitBeforeMinutes ? ` / 接続余裕${step.waitBeforeMinutes}分` : ""
-        }）`,
-    ),
+    "往路Google Maps確認：",
+    `${homeStation} → ${entryTrailhead.accessPoint}`,
+    `登山開始希望時刻 ${startTime} までに到着できる経路をGoogle Mapsで確認してください。`,
+    outboundUrl,
     "",
-    "復路：",
-    ...route.inbound.map(
-      (step, index) =>
-        `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}${
-          index > 0 && step.waitBeforeMinutes ? ` / 接続余裕${step.waitBeforeMinutes}分` : ""
-        }）`,
-    ),
+    "復路Google Maps確認：",
+    `${exitTrailhead.accessPoint} → ${homeStation}`,
+    `下山予定時刻 ${finishTime} 以降に出発できる経路をGoogle Mapsで確認してください。`,
+    inboundUrl,
     "",
-    route.dataStatus === "verified-reference"
-      ? "注意：公共交通時刻は代表アクセスの目安です。出発前に必ず公式情報を確認してください。"
-      : "注意：公共交通時刻と終バス時刻はMVP用の固定サンプルです。出発前に必ず公式情報を確認してください。",
+    "公式確認：",
+    ...(busSchedule.officialUrl ? [`${busSchedule.stopName}：${busSchedule.officialUrl}`] : []),
+    ...route.officialLinks.map((link) => `${link.label}：${link.url}`),
+    "",
+    "注意：このサマリー内のGoogle Mapsリンクは時刻を固定しません。電車・バスの時刻、乗換、運休、季節運行は出発前に必ず公式情報で確認してください。",
   ].join("\n");
 
   return (
@@ -142,7 +137,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
           </div>
           <aside className="space-y-5">
             <LastBusRisk busSchedule={busSchedule} risk={risk} />
-            <ShareButtons outboundUrl={outboundUrl} inboundUrl={inboundUrl} />
+            <ShareButtons outboundUrl={outboundUrl} inboundUrl={inboundUrl} startTime={startTime} finishTime={finishTime} />
             <OfficialLinks links={route.officialLinks} notes={route.notes} />
             <NoticeBox />
             <SupportBox />

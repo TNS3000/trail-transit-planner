@@ -19,10 +19,10 @@ export function RouteSummary({ title, steps }: RouteSummaryProps) {
     <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-stone-950">{title}</h2>
-        <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">約{totalMinutes}分</span>
+        <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">移動目安 約{totalMinutes}分</span>
       </div>
       <p className="mt-2 text-xs leading-5 text-stone-500">
-        現在の公共交通時刻は固定サンプルです。実際の出発前にGoogle Maps、乗換案内、交通事業者の公式時刻表で確認してください。
+        アプリ内では電車・バスの発着時刻を表示しません。正確な時刻と乗換はGoogle Maps、乗換案内、交通事業者の公式時刻表で確認してください。
       </p>
       <ol className="mt-4 space-y-3">
         {steps.map((step, index) => (
@@ -32,9 +32,7 @@ export function RouteSummary({ title, steps }: RouteSummaryProps) {
                 {index + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-emerald-700">
-                  {modeLabel[step.mode]} / {step.departureTime}発 → {step.arrivalTime}着 / 約{step.durationMinutes}分
-                </p>
+                <p className="text-sm font-semibold text-emerald-700">{modeLabel[step.mode]} / 所要目安 約{step.durationMinutes}分</p>
                 <p className="mt-1 text-base font-semibold text-stone-950">
                   {step.from} → {step.to}
                 </p>
@@ -44,7 +42,7 @@ export function RouteSummary({ title, steps }: RouteSummaryProps) {
                   </p>
                 ) : null}
                 {index > 0 && step.waitBeforeMinutes ? (
-                  <p className="mt-1 text-sm font-medium text-stone-700">接続余裕：約{step.waitBeforeMinutes}分</p>
+                  <p className="mt-1 text-sm font-medium text-stone-700">接続余裕の目安：約{step.waitBeforeMinutes}分</p>
                 ) : null}
                 {step.timetableUrl ? (
                   <a

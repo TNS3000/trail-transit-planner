@@ -1,12 +1,17 @@
 type ShareButtonsProps = {
   outboundUrl: string;
   inboundUrl: string;
+  startTime: string;
+  finishTime: string;
 };
 
-export function ShareButtons({ outboundUrl, inboundUrl }: ShareButtonsProps) {
+export function ShareButtons({ outboundUrl, inboundUrl, startTime, finishTime }: ShareButtonsProps) {
   return (
     <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <h2 className="text-lg font-bold text-stone-950">地図で確認</h2>
+      <p className="mt-2 text-xs leading-5 text-stone-500">
+        Google Mapsリンクは時刻を固定しません。往路は{startTime}までの到着、復路は{finishTime}以降の出発としてMaps側で再確認してください。
+      </p>
       <div className="mt-4 grid gap-3">
         <a
           href={outboundUrl}

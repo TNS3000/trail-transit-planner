@@ -38,7 +38,7 @@ export function LastBusRisk({ busSchedule, risk }: LastBusRiskProps) {
           </div>
         ) : null}
         <div className="rounded-md bg-white/70 p-3">
-          <dt className="font-semibold">判定時刻</dt>
+          <dt className="font-semibold">下山予定時刻</dt>
           <dd>{risk.checkedTime}</dd>
         </div>
         <div className="rounded-md bg-white/70 p-3">
