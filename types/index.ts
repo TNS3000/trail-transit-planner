@@ -25,17 +25,24 @@ export type BusSchedule = {
   trailheadId: string;
   stopName: string;
   lastBusTime: string;
+  operator?: string;
+  direction?: string;
+  officialUrl?: string;
+  verifiedOn?: string;
   notes: string;
 };
 
 export type RouteStep = {
-  mode: "train" | "bus" | "walk";
+  mode: "train" | "bus" | "walk" | "cablecar";
   from: string;
   to: string;
   durationMinutes: number;
   waitBeforeMinutes?: number;
   departureTime?: string;
   arrivalTime?: string;
+  lineName?: string;
+  operator?: string;
+  timetableUrl?: string;
   note?: string;
 };
 
@@ -43,6 +50,24 @@ export type SampleRoute = {
   routeKey: string;
   outbound: RouteStep[];
   inbound: RouteStep[];
+};
+
+export type OfficialLink = {
+  label: string;
+  url: string;
+};
+
+export type AccessPlan = {
+  id: string;
+  mountainId: string;
+  entryTrailheadId: string;
+  exitTrailheadId: string;
+  title: string;
+  dataStatus: "verified-reference" | "sample";
+  outbound: RouteStep[];
+  inbound: RouteStep[];
+  officialLinks: OfficialLink[];
+  notes: string[];
 };
 
 export type LastBusRiskLevel = "low" | "medium" | "high" | "impossible";

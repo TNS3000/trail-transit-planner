@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LastBusRisk } from "@/components/LastBusRisk";
 import { NoticeBox } from "@/components/NoticeBox";
+import { OfficialLinks } from "@/components/OfficialLinks";
 import { RouteSummary } from "@/components/RouteSummary";
 import { ShareButtons } from "@/components/ShareButtons";
 import { SupportBox } from "@/components/SupportBox";
@@ -10,7 +11,9 @@ import { mountains } from "@/data/mountains";
 import { trailheads } from "@/data/trailheads";
 import { calculateLastBusRisk } from "@/lib/calculateLastBusRisk";
 import { generateGoogleMapsUrl } from "@/lib/generateGoogleMapsUrl";
+import { getAccessPlan } from "@/lib/getAccessPlan";
 import { getSampleRoute } from "@/lib/getSampleRoute";
+import type { OfficialLink } from "@/types";
 
 type ResultPageProps = {
   searchParams: Promise<{
@@ -54,7 +57,14 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
   }
 
   const busSchedule = busSchedules.find((schedule) => schedule.trailheadId === exitTrailhead.id) ?? busSchedules[0];
-  const route = getSampleRoute(homeStation, entryTrailhead, exitTrailhead, startTime, finishTime);
+  const accessPlan = getAccessPlan(mountain.id, entryTrailhead.id, exitTrailhead.id, homeStation, startTime, finishTime);
+  const route = accessPlan ?? {
+    ...getSampleRoute(homeStation, entryTrailhead, exitTrailhead, startTime, finishTime),
+    title: "固定サンプルルート",
+    dataStatus: "sample" as const,
+    officialLinks: [] as OfficialLink[],
+    notes: ["この山の実用アクセスデータは未整備です。"],
+  };
   const firstInboundTransitStep = route.inbound.find((step) => step.mode !== "walk");
   const checkedTime = firstInboundTransitStep?.departureTime ?? finishTime;
   const risk = calculateLastBusRisk(checkedTime, busSchedule.lastBusTime);
@@ -68,6 +78,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
     `登山開始希望時刻：${startTime}`,
     `下山予定時刻：${finishTime}`,
     `自宅最寄り駅：${homeStation}`,
+    `アクセスルート：${route.title}`,
     `終バス：${busSchedule.stopName} ${busSchedule.lastBusTime}（判定時刻：${checkedTime}）`,
     `終バスリスク：${risk.label}`,
     "",
@@ -87,7 +98,9 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
         }）`,
     ),
     "",
-    "注意：公共交通時刻と終バス時刻はMVP用の固定サンプルです。出発前に必ず公式情報を確認してください。",
+    route.dataStatus === "verified-reference"
+      ? "注意：公共交通時刻は代表アクセスの目安です。出発前に必ず公式情報を確認してください。"
+      : "注意：公共交通時刻と終バス時刻はMVP用の固定サンプルです。出発前に必ず公式情報を確認してください。",
   ].join("\n");
 
   return (
@@ -100,6 +113,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
         <header className="mt-5 rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-emerald-700">計画結果</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-stone-950 sm:text-3xl">{mountain.name} アクセス計画</h1>
+          <p className="mt-2 text-sm font-semibold text-stone-700">{route.title}</p>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-4">
             <div className="rounded-md bg-stone-50 p-3">
               <dt className="text-stone-500">山行日</dt>
@@ -129,6 +143,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
           <aside className="space-y-5">
             <LastBusRisk busSchedule={busSchedule} risk={risk} />
             <ShareButtons outboundUrl={outboundUrl} inboundUrl={inboundUrl} />
+            <OfficialLinks links={route.officialLinks} notes={route.notes} />
             <NoticeBox />
             <SupportBox />
           </aside>

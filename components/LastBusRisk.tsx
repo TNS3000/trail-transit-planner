@@ -31,6 +31,12 @@ export function LastBusRisk({ busSchedule, risk }: LastBusRiskProps) {
           <dt className="font-semibold">対象停留所</dt>
           <dd>{busSchedule.stopName}</dd>
         </div>
+        {busSchedule.direction ? (
+          <div className="rounded-md bg-white/70 p-3">
+            <dt className="font-semibold">方面</dt>
+            <dd>{busSchedule.direction}</dd>
+          </div>
+        ) : null}
         <div className="rounded-md bg-white/70 p-3">
           <dt className="font-semibold">判定時刻</dt>
           <dd>{risk.checkedTime}</dd>
@@ -43,6 +49,16 @@ export function LastBusRisk({ busSchedule, risk }: LastBusRiskProps) {
       <p className="mt-3 text-xs leading-5">
         対象停留所は、下山後に最初に乗る公共交通の停留所です。終バス時刻はMVP用の固定データで、公式時刻表ではありません。{busSchedule.notes}
       </p>
+      {busSchedule.officialUrl ? (
+        <a
+          href={busSchedule.officialUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-block text-sm font-semibold text-current underline underline-offset-4"
+        >
+          公式時刻表を確認
+        </a>
+      ) : null}
     </section>
   );
 }

@@ -1,8 +1,26 @@
 import type { BusSchedule } from "@/types";
 
 export const busSchedules: BusSchedule[] = [
-  { trailheadId: "takaosanguchi", stopName: "高尾山口駅", lastBusTime: "23:20", notes: "鉄道駅のため終電相当の参考時刻です。" },
-  { trailheadId: "kobotoke", stopName: "小仏", lastBusTime: "20:32", notes: "土休日は混雑しやすい区間です。" },
+  {
+    trailheadId: "takaosanguchi",
+    stopName: "高尾山口駅",
+    lastBusTime: "23:20",
+    operator: "京王電鉄ほか",
+    direction: "高尾駅・新宿方面",
+    officialUrl: "https://www.keio.co.jp/global/routes/stations/",
+    verifiedOn: "2026-05-12",
+    notes: "鉄道駅のため終電相当の参考時刻です。自宅方面の終電は必ず乗換案内で確認してください。",
+  },
+  {
+    trailheadId: "kobotoke",
+    stopName: "小仏バス停",
+    lastBusTime: "20:40",
+    operator: "京王バス",
+    direction: "高尾駅北口方面",
+    officialUrl: "https://transfer.navitime.biz/bus-navi/pc/diagram/BusDiagram?course=0000401782&orvCode=00020514&stopNo=1",
+    verifiedOn: "2026-05-10",
+    notes: "小仏発・高尾駅北口行の参考終発です。曜日・季節・改正で変わる可能性があります。",
+  },
   { trailheadId: "jinba-kogen-shita", stopName: "陣馬高原下", lastBusTime: "18:25", notes: "夕方便が限られるため早めの下山が安全です。" },
   { trailheadId: "yabitsu", stopName: "ヤビツ峠", lastBusTime: "17:16", notes: "季節・曜日で本数差が大きい想定データです。" },
   { trailheadId: "okura", stopName: "大倉", lastBusTime: "21:22", notes: "秦野駅方面の参考時刻です。" },

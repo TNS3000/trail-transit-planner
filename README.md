@@ -46,4 +46,15 @@ npm run build
 2. 入山口・下山口を追加する場合は `data/trailheads.ts` に追加
 3. 山と入山口・下山口の対応は `data/mountainTrailheads.ts` に追加
 4. 下山時の終バス時刻は `data/busSchedules.ts` に追加
-5. 公共交通ルートの基本形は `data/sampleRoutes.ts` と `lib/getSampleRoute.ts` で調整
+5. 山ごとの代表アクセスは `data/accessPlans.ts` に追加
+6. まだ実用アクセスが未整備の山は `data/sampleRoutes.ts` と `lib/getSampleRoute.ts` の固定サンプルにフォールバック
+
+### 高尾山のように実用アクセスを追加する手順
+
+1. 公式時刻表URLを確認する
+2. `data/trailheads.ts` に登山口・駅・バス停を登録する
+3. `data/mountainTrailheads.ts` に入山口候補と下山口候補を紐付ける
+4. `data/busSchedules.ts` に下山時に使う停留所の終バス・終電目安、方面、公式URL、確認日を入れる
+5. `data/accessPlans.ts` に `mountainId + entryTrailheadId + exitTrailheadId` ごとの往路・復路ステップを作る
+6. ステップごとに `lineName`、`operator`、`durationMinutes`、`waitBeforeMinutes`、`timetableUrl` を入れる
+7. `npm run lint` と `npm run build` で確認する
