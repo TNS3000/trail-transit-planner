@@ -30,6 +30,22 @@ function RouteResultList({ title, result }: { title: string; result?: TransitRou
       <h3 className="font-semibold text-stone-950">{title}</h3>
       {!result ? <p className="mt-2 text-sm text-stone-600">取得待ちです。</p> : null}
       {result?.error ? <p className="mt-2 text-sm leading-6 text-stone-600">{result.error}</p> : null}
+      {result?.query ? (
+        <dl className="mt-3 grid gap-2 rounded-md bg-white p-3 text-xs text-stone-600">
+          <div>
+            <dt className="font-semibold text-stone-800">検索条件</dt>
+            <dd>
+              {result.query.origin} → {result.query.destination}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-stone-800">指定時刻</dt>
+            <dd>
+              {result.query.timingMode === "arrival" ? "到着" : "出発"} / {result.query.requestedTime}
+            </dd>
+          </div>
+        </dl>
+      ) : null}
       {result?.durationText ? <p className="mt-2 text-sm font-semibold text-emerald-700">所要時間: {result.durationText}</p> : null}
       {result?.steps.length ? (
         <ol className="mt-3 space-y-2">

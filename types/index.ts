@@ -109,4 +109,10 @@ export type TransitRouteResult = {
   durationText?: string;
   steps: TransitRouteLegStep[];
   error?: string;
+  query?: {
+    origin: string;
+    destination: string;
+    timingMode: TransitRouteTimingMode;
+    requestedTime: string;
+  };
 };

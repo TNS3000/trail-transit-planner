@@ -11,7 +11,20 @@ const fieldMask = [
 ].join(",");
 
 function toRfc3339(date: string, time: string) {
-  return `${date}T${time}:00+09:00`;
+  return new Date(`${date}T${time}:00+09:00`).toISOString();
+}
+
+function normalizeAddress(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+
+  if (trimmed.includes("日本") || trimmed.toLowerCase().includes("japan")) {
+    return trimmed;
+  }
+
+  return `${trimmed}, 日本`;
 }
 
 function isValidRequest(body: Partial<TransitRouteRequest>): body is TransitRouteRequest {
@@ -44,7 +57,16 @@ function formatIsoTime(value: unknown) {
   }).format(new Date(value));
 }
 
-function normalizeGoogleRoutesResponse(data: unknown): TransitRouteResult {
+function createQuery(body: TransitRouteRequest) {
+  return {
+    origin: body.origin,
+    destination: body.destination,
+    timingMode: body.timingMode,
+    requestedTime: toRfc3339(body.date, body.time),
+  };
+}
+
+function normalizeGoogleRoutesResponse(data: unknown, body: TransitRouteRequest): TransitRouteResult {
   const route = (data as { routes?: Array<Record<string, unknown>> }).routes?.[0];
 
   if (!route) {
@@ -52,7 +74,8 @@ function normalizeGoogleRoutesResponse(data: unknown): TransitRouteResult {
       configured: true,
       source: "google-routes-api",
       steps: [],
-      error: "公共交通ルートが見つかりませんでした。",
+      error: "公共交通ルートが見つかりませんでした。入力地点が曖昧、指定時刻に公共交通がない、またはGoogle側で公共交通ルートを返せない可能性があります。",
+      query: createQuery(body),
     };
   }
 
@@ -97,6 +120,7 @@ function normalizeGoogleRoutesResponse(data: unknown): TransitRouteResult {
     source: "google-routes-api",
     durationText: localizedValues?.duration?.text,
     steps: normalizedSteps,
+    query: createQuery(body),
   };
 }
 
@@ -126,11 +150,15 @@ export async function POST(request: Request) {
   }
 
   const requestBody = {
-    origin: { address: body.origin },
-    destination: { address: body.destination },
+    origin: { address: normalizeAddress(body.origin) },
+    destination: { address: normalizeAddress(body.destination) },
     travelMode: "TRANSIT",
+    computeAlternativeRoutes: true,
     languageCode: "ja-JP",
     regionCode: "JP",
+    transitPreferences: {
+      routingPreference: "FEWER_TRANSFERS",
+    },
     ...(body.timingMode === "arrival"
       ? { arrivalTime: toRfc3339(body.date, body.time) }
       : { departureTime: toRfc3339(body.date, body.time) }),
@@ -148,17 +176,20 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+
     return NextResponse.json(
       {
         configured: true,
         source: "google-routes-api",
         steps: [],
-        error: "Google Routes APIからルートを取得できませんでした。",
+        error: `Google Routes APIからルートを取得できませんでした。${errorText ? `詳細: ${errorText.slice(0, 240)}` : ""}`,
+        query: createQuery(body),
       } satisfies TransitRouteResult,
       { status: response.status },
     );
   }
 
   const data = await response.json();
-  return NextResponse.json(normalizeGoogleRoutesResponse(data));
+  return NextResponse.json(normalizeGoogleRoutesResponse(data, body));
 }
