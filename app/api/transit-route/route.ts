@@ -14,11 +14,7 @@ function toRfc3339(date: string, time: string) {
   return new Date(`${date}T${time}:00+09:00`).toISOString();
 }
 
-function toUnixSeconds(date: string, time: string) {
-  return Math.floor(new Date(`${date}T${time}:00+09:00`).getTime() / 1000);
-}
-
-function normalizeAddress(value: string) {
+function normalizeAddress(value: string, fallbackPrefecture = "東京都") {
   const trimmed = value.trim();
   if (!trimmed) {
     return trimmed;
@@ -28,7 +24,11 @@ function normalizeAddress(value: string) {
     return trimmed;
   }
 
-  return `${trimmed}, 日本`;
+  if (/[都道府県]/.test(trimmed)) {
+    return `${trimmed}, 日本`;
+  }
+
+  return `${trimmed}, ${fallbackPrefecture}, 日本`;
 }
 
 function isValidRequest(body: Partial<TransitRouteRequest>): body is TransitRouteRequest {
@@ -61,19 +61,6 @@ function formatIsoTime(value: unknown) {
   }).format(new Date(value));
 }
 
-function formatEpochSeconds(value: unknown) {
-  if (typeof value !== "number") {
-    return undefined;
-  }
-
-  return new Intl.DateTimeFormat("ja-JP", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Tokyo",
-  }).format(new Date(value * 1000));
-}
-
 function createQuery(body: TransitRouteRequest) {
   return {
     origin: body.origin,
@@ -84,6 +71,21 @@ function createQuery(body: TransitRouteRequest) {
   };
 }
 
+function toWaypoint(address: string, location?: { latitude: number; longitude: number }) {
+  if (location) {
+    return {
+      location: {
+        latLng: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+      },
+    };
+  }
+
+  return { address: normalizeAddress(address) };
+}
+
 function normalizeGoogleRoutesResponse(data: unknown, body: TransitRouteRequest): TransitRouteResult {
   const route = (data as { routes?: Array<Record<string, unknown>> }).routes?.[0];
 
@@ -92,7 +94,7 @@ function normalizeGoogleRoutesResponse(data: unknown, body: TransitRouteRequest)
       configured: true,
       source: "google-routes-api",
       steps: [],
-      error: "公共交通ルートが見つかりませんでした。入力地点が曖昧、指定時刻に公共交通がない、またはGoogle側で公共交通ルートを返せない可能性があります。",
+      error: "公共交通ルートが見つかりませんでした。駅名が曖昧な場合は「東京都 中野駅」のように都道府県を付けてください。指定時刻に公共交通がない可能性もあります。",
       query: createQuery(body),
     };
   }
@@ -142,73 +144,6 @@ function normalizeGoogleRoutesResponse(data: unknown, body: TransitRouteRequest)
   };
 }
 
-function normalizeGoogleDirectionsResponse(data: unknown, body: TransitRouteRequest): TransitRouteResult {
-  const response = data as {
-    status?: string;
-    error_message?: string;
-    routes?: Array<{
-      legs?: Array<{
-        duration?: { text?: string };
-        steps?: Array<{
-          travel_mode?: string;
-          html_instructions?: string;
-          duration?: { text?: string };
-          transit_details?: {
-            departure_stop?: { name?: string };
-            arrival_stop?: { name?: string };
-            departure_time?: { value?: number; text?: string };
-            arrival_time?: { value?: number; text?: string };
-            line?: {
-              short_name?: string;
-              name?: string;
-              agencies?: Array<{ name?: string }>;
-            };
-          };
-        }>;
-      }>;
-    }>;
-  };
-  const route = response.routes?.[0];
-
-  if (!route) {
-    return {
-      configured: true,
-      source: "google-directions-api",
-      steps: [],
-      error: response.error_message
-        ? `公共交通ルートが見つかりませんでした。詳細: ${response.error_message}`
-        : `公共交通ルートが見つかりませんでした。Google Directions API status: ${response.status ?? "UNKNOWN"}`,
-      query: createQuery(body),
-    };
-  }
-
-  const legs = route.legs ?? [];
-  const steps = legs.flatMap((leg) => leg.steps ?? []);
-  const normalizedSteps: TransitRouteLegStep[] = steps.map((step) => {
-    const transitDetails = step.transit_details;
-
-    return {
-      mode: step.travel_mode ?? "TRANSIT",
-      instruction: step.html_instructions?.replace(/<[^>]+>/g, ""),
-      from: transitDetails?.departure_stop?.name,
-      to: transitDetails?.arrival_stop?.name,
-      lineName: transitDetails?.line?.short_name ?? transitDetails?.line?.name,
-      operator: transitDetails?.line?.agencies?.[0]?.name,
-      departureTime: transitDetails?.departure_time?.text ?? formatEpochSeconds(transitDetails?.departure_time?.value),
-      arrivalTime: transitDetails?.arrival_time?.text ?? formatEpochSeconds(transitDetails?.arrival_time?.value),
-      durationText: step.duration?.text,
-    };
-  });
-
-  return {
-    configured: true,
-    source: "google-directions-api",
-    durationText: legs[0]?.duration?.text,
-    steps: normalizedSteps,
-    query: createQuery(body),
-  };
-}
-
 export async function POST(request: Request) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const body = (await request.json()) as Partial<TransitRouteRequest>;
@@ -235,8 +170,8 @@ export async function POST(request: Request) {
   }
 
   const requestBody = {
-    origin: { address: normalizeAddress(body.origin) },
-    destination: { address: normalizeAddress(body.destination) },
+    origin: toWaypoint(body.origin, body.originLocation),
+    destination: toWaypoint(body.destination, body.destinationLocation),
     travelMode: "TRANSIT",
     computeAlternativeRoutes: true,
     languageCode: "ja-JP",
@@ -276,35 +211,5 @@ export async function POST(request: Request) {
   }
 
   const data = await response.json();
-  const routesResult = normalizeGoogleRoutesResponse(data, body);
-
-  if (routesResult.steps.length > 0) {
-    return NextResponse.json(routesResult);
-  }
-
-  const directionsParams = new URLSearchParams({
-    origin: normalizeAddress(body.origin),
-    destination: normalizeAddress(body.destination),
-    mode: "transit",
-    language: "ja",
-    region: "jp",
-    key: apiKey,
-    [body.timingMode === "arrival" ? "arrival_time" : "departure_time"]: String(toUnixSeconds(body.date, body.time)),
-  });
-  const directionsResponse = await fetch(`https://maps.googleapis.com/maps/api/directions/json?${directionsParams.toString()}`, {
-    cache: "no-store",
-  });
-
-  if (!directionsResponse.ok) {
-    return NextResponse.json(
-      {
-        ...routesResult,
-        error: `${routesResult.error} Directions APIのフォールバックにも失敗しました。`,
-      } satisfies TransitRouteResult,
-      { status: directionsResponse.status },
-    );
-  }
-
-  const directionsData = await directionsResponse.json();
-  return NextResponse.json(normalizeGoogleDirectionsResponse(directionsData, body));
+  return NextResponse.json(normalizeGoogleRoutesResponse(data, body));
 }

@@ -115,6 +115,11 @@ export function TransitRouteLookup({ outboundRequest, inboundRequest }: TransitR
           Google Maps APIキーが未設定です。Vercelに `GOOGLE_MAPS_API_KEY` を設定すると取得できます。
         </p>
       ) : null}
+      {apiConfigured ? (
+        <p className="mt-4 rounded-lg bg-emerald-50 p-3 text-xs leading-5 text-emerald-950">
+          Routes APIのみを使用しています。旧Directions APIは使いません。
+        </p>
+      ) : null}
       <div className="mt-4 grid gap-3">
         <RouteResultList title="往路" result={state.outbound} />
         <RouteResultList title="復路" result={state.inbound} />

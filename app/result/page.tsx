@@ -136,6 +136,10 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
               outboundRequest={{
                 origin: homeStation,
                 destination: entryTrailhead.accessPoint,
+                destinationLocation:
+                  entryTrailhead.latitude && entryTrailhead.longitude
+                    ? { latitude: entryTrailhead.latitude, longitude: entryTrailhead.longitude }
+                    : undefined,
                 date: hikeDate,
                 time: startTime,
                 timingMode: "arrival",
@@ -143,6 +147,10 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
               inboundRequest={{
                 origin: exitTrailhead.accessPoint,
                 destination: homeStation,
+                originLocation:
+                  exitTrailhead.latitude && exitTrailhead.longitude
+                    ? { latitude: exitTrailhead.latitude, longitude: exitTrailhead.longitude }
+                    : undefined,
                 date: hikeDate,
                 time: finishTime,
                 timingMode: "departure",

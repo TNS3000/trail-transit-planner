@@ -13,6 +13,8 @@ export type Trailhead = {
   name: string;
   accessPoint: string;
   nearestStop: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export type MountainTrailheads = {
@@ -85,6 +87,14 @@ export type TransitRouteTimingMode = "arrival" | "departure";
 export type TransitRouteRequest = {
   origin: string;
   destination: string;
+  originLocation?: {
+    latitude: number;
+    longitude: number;
+  };
+  destinationLocation?: {
+    latitude: number;
+    longitude: number;
+  };
   date: string;
   time: string;
   timingMode: TransitRouteTimingMode;
@@ -104,7 +114,7 @@ export type TransitRouteLegStep = {
 
 export type TransitRouteResult = {
   configured: boolean;
-  source: "google-routes-api" | "google-directions-api";
+  source: "google-routes-api";
   summary?: string;
   durationText?: string;
   steps: TransitRouteLegStep[];
