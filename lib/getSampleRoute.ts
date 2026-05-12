@@ -48,6 +48,7 @@ function addTimesForward(steps: RouteStep[], firstDepartureTime: string) {
   let cursor = toMinutes(firstDepartureTime);
 
   return steps.map((step) => {
+    cursor += step.waitBeforeMinutes ?? 0;
     const departureTime = toTime(cursor);
     cursor += step.durationMinutes;
 
@@ -65,10 +66,12 @@ function addTimesBackward(steps: RouteStep[], finalArrivalTime: string) {
   return [...steps].reverse().map((step) => {
     const arrivalTime = toTime(cursor);
     cursor -= step.durationMinutes;
+    const departureTime = toTime(cursor);
+    cursor -= step.waitBeforeMinutes ?? 0;
 
     return {
       ...step,
-      departureTime: toTime(cursor),
+      departureTime,
       arrivalTime,
     };
   }).reverse();

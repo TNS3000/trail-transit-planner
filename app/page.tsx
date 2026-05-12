@@ -8,7 +8,9 @@ export default function Home() {
         <section className="py-6">
           <p className="text-sm font-semibold text-emerald-700">Trail Transit Planner MVP</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
-            公共交通で行く登山アクセス計画
+            公共交通機関で行く
+            <br />
+            登山アクセス計画
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-stone-700">
             登山の行き帰りの交通アクセス情報を計画して簡単にシェアできます。山の種類は随時追加予定。

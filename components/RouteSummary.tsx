@@ -12,7 +12,7 @@ type RouteSummaryProps = {
 };
 
 export function RouteSummary({ title, steps }: RouteSummaryProps) {
-  const totalMinutes = steps.reduce((sum, step) => sum + step.durationMinutes, 0);
+  const totalMinutes = steps.reduce((sum, step) => sum + step.durationMinutes + (step.waitBeforeMinutes ?? 0), 0);
 
   return (
     <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
@@ -20,6 +20,9 @@ export function RouteSummary({ title, steps }: RouteSummaryProps) {
         <h2 className="text-lg font-bold text-stone-950">{title}</h2>
         <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">約{totalMinutes}分</span>
       </div>
+      <p className="mt-2 text-xs leading-5 text-stone-500">
+        現在の公共交通時刻は固定サンプルです。実際の出発前にGoogle Maps、乗換案内、交通事業者の公式時刻表で確認してください。
+      </p>
       <ol className="mt-4 space-y-3">
         {steps.map((step, index) => (
           <li key={`${step.from}-${step.to}-${index}`} className="rounded-lg bg-stone-50 p-3">
@@ -34,6 +37,9 @@ export function RouteSummary({ title, steps }: RouteSummaryProps) {
                 <p className="mt-1 text-base font-semibold text-stone-950">
                   {step.from} → {step.to}
                 </p>
+                {index > 0 && step.waitBeforeMinutes ? (
+                  <p className="mt-1 text-sm font-medium text-stone-700">接続余裕：約{step.waitBeforeMinutes}分</p>
+                ) : null}
                 {step.note ? <p className="mt-1 text-sm text-stone-600">{step.note}</p> : null}
               </div>
             </div>

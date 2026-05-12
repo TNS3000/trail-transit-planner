@@ -41,7 +41,7 @@ export function LastBusRisk({ busSchedule, risk }: LastBusRiskProps) {
         </div>
       </dl>
       <p className="mt-3 text-xs leading-5">
-        対象停留所は、下山後に最初に乗る公共交通の停留所です。{busSchedule.notes}
+        対象停留所は、下山後に最初に乗る公共交通の停留所です。終バス時刻はMVP用の固定データで、公式時刻表ではありません。{busSchedule.notes}
       </p>
     </section>
   );

@@ -33,6 +33,7 @@ export type RouteStep = {
   from: string;
   to: string;
   durationMinutes: number;
+  waitBeforeMinutes?: number;
   departureTime?: string;
   arrivalTime?: string;
   note?: string;

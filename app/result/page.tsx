@@ -73,15 +73,21 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
     "",
     "往路：",
     ...route.outbound.map(
-      (step, index) => `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}）`,
+      (step, index) =>
+        `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}${
+          index > 0 && step.waitBeforeMinutes ? ` / 接続余裕${step.waitBeforeMinutes}分` : ""
+        }）`,
     ),
     "",
     "復路：",
     ...route.inbound.map(
-      (step, index) => `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}）`,
+      (step, index) =>
+        `${index + 1}. ${step.departureTime}発 ${step.from} → ${step.arrivalTime}着 ${step.to}（${step.durationMinutes}分 / ${step.mode}${
+          index > 0 && step.waitBeforeMinutes ? ` / 接続余裕${step.waitBeforeMinutes}分` : ""
+        }）`,
     ),
     "",
-    "注意：この計画は参考情報です。出発前に必ず公式情報を確認してください。",
+    "注意：公共交通時刻と終バス時刻はMVP用の固定サンプルです。出発前に必ず公式情報を確認してください。",
   ].join("\n");
 
   return (
