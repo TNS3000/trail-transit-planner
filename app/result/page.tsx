@@ -5,6 +5,7 @@ import { OfficialLinks } from "@/components/OfficialLinks";
 import { RouteSummary } from "@/components/RouteSummary";
 import { ShareButtons } from "@/components/ShareButtons";
 import { SupportBox } from "@/components/SupportBox";
+import { TransitRouteLookup } from "@/components/TransitRouteLookup";
 import { YamapSummary } from "@/components/YamapSummary";
 import { busSchedules } from "@/data/busSchedules";
 import { mountains } from "@/data/mountains";
@@ -131,6 +132,22 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-5">
+            <TransitRouteLookup
+              outboundRequest={{
+                origin: homeStation,
+                destination: entryTrailhead.accessPoint,
+                date: hikeDate,
+                time: startTime,
+                timingMode: "arrival",
+              }}
+              inboundRequest={{
+                origin: exitTrailhead.accessPoint,
+                destination: homeStation,
+                date: hikeDate,
+                time: finishTime,
+                timingMode: "departure",
+              }}
+            />
             <RouteSummary title="往路の公共交通" steps={route.outbound} />
             <RouteSummary title="復路の公共交通" steps={route.inbound} />
             <YamapSummary summary={copySummary} />

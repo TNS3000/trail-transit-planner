@@ -49,6 +49,16 @@ npm run build
 
 将来的にGoogle Routes API / Directions APIを導入する場合は、Vercelの環境変数にAPIキーを置き、サーバー側API Routeから呼び出します。フロントエンドにAPIキーを露出させないでください。
 
+### Google Routes APIの設定
+
+1. Google CloudでGoogle Maps Platformの課金を有効にする
+2. Routes APIを有効化する
+3. APIキーを作成する
+4. VercelのProject Settings > Environment Variablesに `GOOGLE_MAPS_API_KEY` を追加する
+5. 再デプロイする
+
+APIキー未設定時は `/api/transit-route` が未設定レスポンスを返し、画面ではGoogle Mapsリンク確認へフォールバックします。
+
 ## 山・登山口データの追加
 
 外部DBを使わないMVPのため、データはコード内の固定データで管理しています。

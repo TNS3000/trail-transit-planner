@@ -79,3 +79,34 @@ export type LastBusRisk = {
   checkedTime: string;
   message: string;
 };
+
+export type TransitRouteTimingMode = "arrival" | "departure";
+
+export type TransitRouteRequest = {
+  origin: string;
+  destination: string;
+  date: string;
+  time: string;
+  timingMode: TransitRouteTimingMode;
+};
+
+export type TransitRouteLegStep = {
+  mode: string;
+  instruction?: string;
+  from?: string;
+  to?: string;
+  lineName?: string;
+  operator?: string;
+  departureTime?: string;
+  arrivalTime?: string;
+  durationText?: string;
+};
+
+export type TransitRouteResult = {
+  configured: boolean;
+  source: "google-routes-api";
+  summary?: string;
+  durationText?: string;
+  steps: TransitRouteLegStep[];
+  error?: string;
+};
