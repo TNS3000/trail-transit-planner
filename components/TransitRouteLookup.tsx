@@ -41,12 +41,13 @@ function RouteResultList({ title, result }: { title: string; result?: TransitRou
           <div>
             <dt className="font-semibold text-stone-800">指定時刻</dt>
             <dd>
-              {result.query.timingMode === "arrival" ? "到着" : "出発"} / {result.query.requestedTime}
+              {result.query.timingMode === "arrival" ? "到着" : "出発"} / {result.query.requestedLocalTime}
             </dd>
           </div>
         </dl>
       ) : null}
       {result?.durationText ? <p className="mt-2 text-sm font-semibold text-emerald-700">所要時間: {result.durationText}</p> : null}
+      {result?.steps.length ? <p className="mt-2 text-xs text-stone-500">取得元: {result.source}</p> : null}
       {result?.steps.length ? (
         <ol className="mt-3 space-y-2">
           {result.steps.map((step, index) => (

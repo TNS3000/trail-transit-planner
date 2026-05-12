@@ -104,7 +104,7 @@ export type TransitRouteLegStep = {
 
 export type TransitRouteResult = {
   configured: boolean;
-  source: "google-routes-api";
+  source: "google-routes-api" | "google-directions-api";
   summary?: string;
   durationText?: string;
   steps: TransitRouteLegStep[];
@@ -114,5 +114,6 @@ export type TransitRouteResult = {
     destination: string;
     timingMode: TransitRouteTimingMode;
     requestedTime: string;
+    requestedLocalTime: string;
   };
 };
