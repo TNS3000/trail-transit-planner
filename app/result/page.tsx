@@ -14,6 +14,7 @@ import { calculateLastBusRisk } from "@/lib/calculateLastBusRisk";
 import { generateGoogleMapsUrl } from "@/lib/generateGoogleMapsUrl";
 import { getAccessPlan } from "@/lib/getAccessPlan";
 import { getSampleRoute } from "@/lib/getSampleRoute";
+import { getStationLocation } from "@/lib/getStationLocation";
 import type { OfficialLink } from "@/types";
 
 type ResultPageProps = {
@@ -68,6 +69,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
   };
   const checkedTime = finishTime;
   const risk = calculateLastBusRisk(checkedTime, busSchedule.lastBusTime);
+  const homeStationLocation = getStationLocation(homeStation);
   const outboundUrl = generateGoogleMapsUrl(homeStation, entryTrailhead.accessPoint);
   const inboundUrl = generateGoogleMapsUrl(exitTrailhead.accessPoint, homeStation);
   const copySummary = [
@@ -136,6 +138,9 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
               outboundRequest={{
                 origin: homeStation,
                 destination: entryTrailhead.accessPoint,
+                originLocation: homeStationLocation
+                  ? { latitude: homeStationLocation.latitude, longitude: homeStationLocation.longitude }
+                  : undefined,
                 destinationLocation:
                   entryTrailhead.latitude && entryTrailhead.longitude
                     ? { latitude: entryTrailhead.latitude, longitude: entryTrailhead.longitude }
@@ -151,6 +156,9 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
                   exitTrailhead.latitude && exitTrailhead.longitude
                     ? { latitude: exitTrailhead.latitude, longitude: exitTrailhead.longitude }
                     : undefined,
+                destinationLocation: homeStationLocation
+                  ? { latitude: homeStationLocation.latitude, longitude: homeStationLocation.longitude }
+                  : undefined,
                 date: hikeDate,
                 time: finishTime,
                 timingMode: "departure",
