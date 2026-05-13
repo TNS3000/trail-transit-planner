@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { TransitRouteLegStep, TransitRouteRequest, TransitRouteResult } from "@/types";
 
 const fieldMask = [
+  "fallbackInfo",
+  "geocodingResults",
   "routes.duration",
   "routes.localizedValues",
   "routes.legs.steps.travelMode",
@@ -91,14 +93,26 @@ function toWaypoint(address: string, location?: { latitude: number; longitude: n
 }
 
 function normalizeGoogleRoutesResponse(data: unknown, body: TransitRouteRequest): TransitRouteResult {
-  const route = (data as { routes?: Array<Record<string, unknown>> }).routes?.[0];
+  const response = data as {
+    routes?: Array<Record<string, unknown>>;
+    fallbackInfo?: unknown;
+    geocodingResults?: unknown;
+  };
+  const route = response.routes?.[0];
 
   if (!route) {
+    const diagnostics = [
+      response.fallbackInfo ? `fallbackInfo: ${JSON.stringify(response.fallbackInfo).slice(0, 160)}` : "",
+      response.geocodingResults ? `geocodingResults: ${JSON.stringify(response.geocodingResults).slice(0, 160)}` : "",
+    ].filter(Boolean);
+
     return {
       configured: true,
       source: "google-routes-api",
       steps: [],
-      error: "公共交通ルートが見つかりませんでした。駅名が曖昧な場合は「東京都 中野駅」のように都道府県を付けてください。指定時刻に公共交通がない可能性もあります。",
+      error: `公共交通ルートが見つかりませんでした。駅名が曖昧な場合は「東京都 中野駅」のように都道府県を付けてください。指定時刻に公共交通がない可能性もあります。${
+        diagnostics.length ? ` 診断: ${diagnostics.join(" / ")}` : ""
+      }`,
       query: createQuery(body),
     };
   }
@@ -187,12 +201,8 @@ export async function POST(request: Request) {
     origin: toWaypoint(body.origin, body.originLocation),
     destination: toWaypoint(body.destination, body.destinationLocation),
     travelMode: "TRANSIT",
-    computeAlternativeRoutes: true,
     languageCode: "ja-JP",
     regionCode: "JP",
-    transitPreferences: {
-      routingPreference: "FEWER_TRANSFERS",
-    },
     ...(body.timingMode === "arrival"
       ? { arrivalTime: toRfc3339(body.date, body.time) }
       : { departureTime: toRfc3339(body.date, body.time) }),
