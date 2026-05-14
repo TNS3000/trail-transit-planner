@@ -47,7 +47,7 @@ npm run build
 - コピー用サマリーにはGoogle Maps確認リンクと公式時刻表リンクを含める
 - 終バスリスクは入力された下山予定時刻と手動整備した終バス目安で判定
 
-将来的にGoogle Routes API / Directions APIを導入する場合は、Vercelの環境変数にAPIキーを置き、サーバー側API Routeから呼び出します。フロントエンドにAPIキーを露出させないでください。
+将来的にGoogle Routes API / Directions APIを再検証する場合は、Vercelの環境変数にAPIキーを置き、サーバー側API Routeから呼び出します。フロントエンドにAPIキーを露出させないでください。
 
 ### Google Routes APIの設定
 
@@ -57,7 +57,7 @@ npm run build
 4. VercelのProject Settings > Environment Variablesに `GOOGLE_MAPS_API_KEY` を追加する
 5. 再デプロイする
 
-APIキー未設定時は `/api/transit-route` が未設定レスポンスを返し、画面ではGoogle Mapsリンク確認へフォールバックします。
+APIキー未設定時は `/api/transit-route` が未設定レスポンスを返します。現状の結果画面ではAPI取得枠を表示せず、Google Mapsリンク確認へフォールバックします。
 
 ### Google APIの制約
 

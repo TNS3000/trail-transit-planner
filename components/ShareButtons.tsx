@@ -10,7 +10,7 @@ export function ShareButtons({ outboundUrl, inboundUrl, startTime, finishTime }:
     <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <h2 className="text-lg font-bold text-stone-950">地図で確認</h2>
       <p className="mt-2 text-xs leading-5 text-stone-500">
-        Google Mapsリンクは時刻を固定しません。往路は{startTime}までの到着、復路は{finishTime}以降の出発としてMaps側で再確認してください。
+        アプリ内では公共交通の正確な発着時刻を表示しません。往路は{startTime}までの到着、復路は{finishTime}以降の出発としてGoogle Maps側で確認してください。
       </p>
       <div className="mt-4 grid gap-3">
         <a
