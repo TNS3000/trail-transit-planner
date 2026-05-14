@@ -110,7 +110,7 @@ function normalizeGoogleRoutesResponse(data: unknown, body: TransitRouteRequest)
       configured: true,
       source: "google-routes-api",
       steps: [],
-      error: `公共交通ルートが見つかりませんでした。駅名が曖昧な場合は「東京都 中野駅」のように都道府県を付けてください。指定時刻に公共交通がない可能性もあります。${
+      error: `Google Routes APIから公共交通ルートが返りませんでした。Google Mapsアプリ/ブラウザでは表示できる経路でも、APIでは地域や交通データの条件により返らない場合があります。下のGoogle Mapsリンクで時刻と乗換を確認してください。${
         diagnostics.length ? ` 診断: ${diagnostics.join(" / ")}` : ""
       }`,
       query: createQuery(body),

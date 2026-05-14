@@ -59,6 +59,10 @@ npm run build
 
 APIキー未設定時は `/api/transit-route` が未設定レスポンスを返し、画面ではGoogle Mapsリンク確認へフォールバックします。
 
+### Google APIの制約
+
+Google Maps画面で公共交通ルートが表示されても、Google Routes APIが同じ地域・同じ条件の公共交通ルートを必ず返すとは限りません。APIからルートが返らない場合は、アプリ内ではGoogle Mapsリンクと公式時刻表リンクへフォールバックします。
+
 ## 山・登山口データの追加
 
 外部DBを使わないMVPのため、データはコード内の固定データで管理しています。

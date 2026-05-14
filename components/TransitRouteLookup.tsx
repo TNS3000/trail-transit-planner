@@ -104,9 +104,9 @@ export function TransitRouteLookup({ outboundRequest, inboundRequest }: TransitR
   return (
     <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <div>
-        <h2 className="text-lg font-bold text-stone-950">Google APIルート取得</h2>
+        <h2 className="text-lg font-bold text-stone-950">Google APIルート取得（試験中）</h2>
         <p className="mt-2 text-xs leading-5 text-stone-500">
-          Google Routes APIを設定すると、ここに正確な公共交通の時刻・乗換が表示されます。未設定時はGoogle Mapsリンクで確認してください。
+          Google Routes APIから公共交通ルートが返った場合のみ、時刻・乗換を表示します。返らない場合はGoogle Mapsリンクで確認してください。
         </p>
       </div>
       {state.loading ? <p className="mt-4 text-sm text-stone-600">ルート取得を確認中です。</p> : null}
@@ -117,7 +117,7 @@ export function TransitRouteLookup({ outboundRequest, inboundRequest }: TransitR
       ) : null}
       {apiConfigured ? (
         <p className="mt-4 rounded-lg bg-emerald-50 p-3 text-xs leading-5 text-emerald-950">
-          Routes APIのみを使用しています。旧Directions APIは使いません。
+          Routes APIのみを使用しています。Google Maps上で表示される公共交通でも、APIでは返らない場合があります。
         </p>
       ) : null}
       <div className="mt-4 grid gap-3">
